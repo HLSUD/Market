@@ -1,7 +1,8 @@
 #include "rwqueue/KsTool.h"
 #include <string>
-#include "../../include/SseExanicStruct.h"
-#include "../../include/SzseExanicStruct.h"
+#include "BseExanicStruct.h"
+#include "SseExanicStruct.h"
+#include "SzseExanicStruct.h"
 #include "KsHSInterfaceEx.h"
 #include <unordered_map>
 #include <string>
@@ -64,6 +65,7 @@ uint16_t KsTool::getTypeSize(char type)
         {
             map_[typeSize[i].type] = typeSize[i].size;
         }
+        return -1;
     }
     else
     {

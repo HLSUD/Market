@@ -1,5 +1,9 @@
 #pragma once
-
+# include <iostream>
+#include <cstring>
+#include "BseExanicStruct.h"
+#include "SseExanicStruct.h"
+#include "SzseExanicStruct.h"
 #include <memory>
 
 using namespace istone::base;

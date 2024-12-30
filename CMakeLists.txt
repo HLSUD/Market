@@ -1,26 +1,15 @@
-
 set(base_SRCS_ex
-	api_tool_efvi_gx_ex.cc
-	XMLConfigEx.h
-	XMLConfigEx.cc
-	DataFeed.cc
+	demo_lev2_stock.cpp
 	KsTool.cc
+	main.cpp
 )
 
-include_directories(${PROJECT_SOURCE_DIR}/demo/include)
-include_directories(${PROJECT_SOURCE_DIR}/demo/src/api_tool_efvi_gx)
-include_directories(${PROJECT_SOURCE_DIR}/demo/src/api_tool_efvi_gx/include)
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
+LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/lib)
 
+add_executable(main ${base_SRCS_ex})
 
-LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/demo/lib)
-
-
-
-add_executable(api_tool_gx_ex ${base_SRCS_ex})
-
-target_link_libraries(api_tool_gx_ex ksHsUdp)
-target_link_libraries(api_tool_gx_ex tinyxml2)
-target_link_libraries(api_tool_gx_ex pthread rt)
-
-set_target_properties(api_tool_gx_ex PROPERTIES OUTPUT_NAME "gthq_demo")
+target_link_libraries(main lev2mdapi)
+target_link_libraries(main pthread rt)
+set_target_properties(main PROPERTIES OUTPUT_NAME "main")

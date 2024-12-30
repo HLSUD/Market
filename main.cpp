@@ -17,9 +17,10 @@
 #include "rwqueue/readerwriterqueue.h"
 #include "rwqueue/DataFileManager.h"
 
-#ifdef __LINUX__
 #include <signal.h>
-#endif
+// #ifdef __LINUX__
+// #include <signal.h>
+// #endif
 
 namespace
 {
@@ -46,10 +47,10 @@ namespace
         return resultStringVector;
     }
     
-    void authCallback(istone::comm::STATUS type, const char* msg)
-    {
-        std::cerr << "\ttcp status:[code:" << type << "], msg:" << msg << std::endl;
-    }
+    // void authCallback(istone::comm::STATUS type, const char* msg)
+    // {
+    //     std::cerr << "\ttcp status:[code:" << type << "], msg:" << msg << std::endl;
+    // }
 
     bool startMyTasksThread(std::vector<std::string>& v, size_t numThreads = 2)
     {    
@@ -134,17 +135,19 @@ int main(int argc, char* argv[])
     std::vector<std::string> v;
     {
         // get num of threads and stock codes
-        auto queueNum = std::atoi(user_node->FirstChildElement("queueNum")->GetText()); 
-        auto codes = user_node->FirstChildElement("codes")->GetText();
+        // auto queueNum = std::atoi(user_node->FirstChildElement("queueNum")->GetText()); 
+        // auto codes = user_node->FirstChildElement("codes")->GetText();
+        auto queueNum = 1;
+        auto codes = "600083,600084";
         //std::cerr << codes;
 
         v = splitString(codes, ",", true);
-        /*
+        
         for(auto _ : v)
         {
             std::cerr << _ << " ";
         }
-        */
+        
         if(!startMyTasksThread(v, queueNum))
         {
             std::cerr << "failed to start task thread";
@@ -158,7 +161,7 @@ int main(int argc, char* argv[])
     std::cerr << "\nstart to into istone_start";
 
     
-
+    /*
     bool ret = istone_start_ex(&metaInfo,
                                &authParam,
                                authCallback,
@@ -172,7 +175,7 @@ int main(int argc, char* argv[])
                   << "failed to start,you can view .log file to find more details" << endl;
         return -1;
     }
-
+    */
     std::cout << std::endl << "\nPress Ctrl+C to terminate program." << std::endl;
     while (1)
     {
