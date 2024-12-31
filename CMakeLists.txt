@@ -1,5 +1,5 @@
 set(base_SRCS_ex
-	demo_lev2_stock.cpp
+	Lev2MdSpi.cpp
 	KsTool.cc
 	main.cpp
 )

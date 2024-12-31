@@ -39,8 +39,20 @@ public:
     }
 
     virtual void onSseEntrust(SseEntrust* data) { 
-        //std::cout << "onSseEntrust" << std::endl;
-     }
+        std::cout << "onSseEntrust" << std::endl;
+        if (std::strncmp(lastSecurityID, data->SecurityID, 8) == 0) {
+                std::cout << "推送的是同一只股票: " << std::string(data->SecurityID, 8) << std::endl;
+        } else {
+            if (std::string(lastSecurityID) != "")
+                std::cout << "推送的是不同的股票: " << std::string(data->SecurityID, 8) << std::endl;
+            else
+            {
+                std::cout << "首次推送股票: " << std::string(data->SecurityID, 8) << std::endl;
+            }
+            // 更新最近的股票代码
+            std::strncpy(lastSecurityID, data->SecurityID, 8);
+        }
+    }
 
     virtual void onSseTrade(SseTrade* data){ 
         // std::cout << "onSseTrade" << std::endl;

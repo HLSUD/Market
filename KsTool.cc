@@ -3,6 +3,7 @@
 #include "BseExanicStruct.h"
 #include "SseExanicStruct.h"
 #include "SzseExanicStruct.h"
+#include "TORATstpLev2ApiStruct.h"
 #include "KsHSInterfaceEx.h"
 #include <unordered_map>
 #include <string>
@@ -29,6 +30,8 @@ namespace
         {'x', sizeof(SseOrderQueueErr)},
         {'i', sizeof(SseIOPV)},
         {'z', sizeof(SseRealtimeIndex)},
+        {'w', sizeof(TORALEV2API::CTORATstpLev2NGTSTickField)},
+
         //{'r', sizeof(SseOrderbookSnapAT)},
         //{'s', sizeof(SseOrderbookSnapErr)},
         {'l', sizeof(SseIndex)},
@@ -71,6 +74,50 @@ uint16_t KsTool::getTypeSize(char type)
     {
         return map_[type];
     }
+}
+
+std::string KsTool::getCode(char type, const char* data)
+{
+    using namespace istone_hs;
+    std::string code = "";
+    // char type = data[0];
+    switch (type)
+    {
+    //sh
+    case sseEntrustType:
+        code = mystr2(((SseEntrust*)data)->SecurityID);
+        break;
+    case sseTradeType:
+        code = mystr2(((SseTrade*)data)->SecurityID);
+        break;
+    case sseDepthFiftyType:
+        code = mystr2(((SseDepthFifty*)data)->SecurityID);
+        break;
+    case sseDepthType0:
+        code = mystr2(((SseDepth*)data)->SecurityID);
+        break;
+    case sseDepthType1:
+        code = mystr2(((SseDepth*)data)->SecurityID);
+        break;
+    case sseMyEntrustType:
+        code = mystr2(((TORALEV2API::CTORATstpLev2NGTSTickField*)data)->SecurityID);
+        break;
+    //todo
+    //sz
+    case szseEntrustType:
+        code = mystr2(((SzseEntrust*)data)->SecurityID);
+        break;
+    case szseTradeType:
+        code = mystr2(((SzseTrade*)data)->SecurityID);
+        break;
+    case szseDepthFiftyType:
+        code = mystr2(((SzseDepthFifty*)data)->SecurityID);
+        break;
+    case szseDepthOrOptionType:
+        code = mystr2(((SzseDepth*)data)->SecurityID);
+        break;
+    }
+    return code;
 }
 
 std::string KsTool::getCode(const char* data)

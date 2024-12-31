@@ -41,6 +41,7 @@ private:
         {
             if (q->try_dequeue(buff))
             {
+                // printf("Got data...\n");
                 //threadFunction(buff.c_str());
                 auto code = KsTool::getCode(buff.c_str());
                 char type = buff.at(0);
@@ -48,36 +49,39 @@ private:
                 const char* data=buff.c_str();
                 switch (type)
                 {
-                //sh
-                case sseEntrustType:
-                    g->onSseEntrust((SseEntrust*)data);
-                    break;
-                case sseTradeType:
-                    g->onSseTrade((SseTrade*)data);
-                    break;
-                case sseDepthType1:
-                    g->onSseDepth((SseDepth*)data, NO_PRICE);
-                    break;
-                case sseDepthType0:
-                    g->onSseDepth((SseDepth*)data, HAS_PRICE);
-                    break;
-                case sseDepthFiftyType:
-                    g->onSseDepthFifty((SseDepthFifty*)data);
-                    break;
-                //todo
-                //sz
-                case szseEntrustType:
-                    g->onSzseEntrust((SzseEntrust*)data);
-                    break;
-                case szseTradeType:
-                    g->onSzseTrade((SzseTrade*)data);
-                    break;
-                case szseDepthFiftyType:
-                    g->onSzseDepthFifty((SzseDepthFifty*)data);
-                    break;
-                case szseDepthOrOptionType:
-                    g->onSzseDepth((SzseDepth*)data);
-                    break;
+                    //sh
+                    case sseEntrustType:
+                        g->onSseEntrust((SseEntrust*)data);
+                        break;
+                    case sseTradeType:
+                        g->onSseTrade((SseTrade*)data);
+                        break;
+                    case sseDepthType1:
+                        g->onSseDepth((SseDepth*)data, NO_PRICE);
+                        break;
+                    case sseDepthType0:
+                        g->onSseDepth((SseDepth*)data, HAS_PRICE);
+                        break;
+                    case sseDepthFiftyType:
+                        g->onSseDepthFifty((SseDepthFifty*)data);
+                        break;
+                    //todo
+                    //sz
+                    case szseEntrustType:
+                        g->onSzseEntrust((SzseEntrust*)data);
+                        break;
+                    case szseTradeType:
+                        g->onSzseTrade((SzseTrade*)data);
+                        break;
+                    case szseDepthFiftyType:
+                        g->onSzseDepthFifty((SzseDepthFifty*)data);
+                        break;
+                    case szseDepthOrOptionType:
+                        g->onSzseDepth((SzseDepth*)data);
+                        break;
+                    // default:
+                    //     std::cout << "New option.\n";
+                    //     g->onSseEntrust((TORALEV2API::CTORATstpLev2NGTSTickField*)data);
                 }
                
             }

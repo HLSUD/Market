@@ -13,6 +13,7 @@
 #include <thread>
 
 // #include "DataFeed.h"
+#include "Lev2MdSpi.h"
 #include "ksGoods.h"
 #include "rwqueue/readerwriterqueue.h"
 #include "rwqueue/DataFileManager.h"
@@ -137,8 +138,8 @@ int main(int argc, char* argv[])
         // get num of threads and stock codes
         // auto queueNum = std::atoi(user_node->FirstChildElement("queueNum")->GetText()); 
         // auto codes = user_node->FirstChildElement("codes")->GetText();
-        auto queueNum = 1;
-        auto codes = "600083,600084";
+        auto queueNum = 2;
+        auto codes = "600001,600002,600003,600004,600005,600006,600007,600008,600009";
         //std::cerr << codes;
 
         v = splitString(codes, ",", true);
@@ -159,6 +160,88 @@ int main(int argc, char* argv[])
 
     //调用初始化函数
     std::cerr << "\nstart to into istone_start";
+
+    // 打印接口版本号
+	printf("Level2MdApiVersion::[%s]\n", CTORATstpLev2MdApi::GetApiVersion());
+
+	// 创建接口对象
+	////TCP订阅lv2行情，前置Front和FENS方式都用默认构造
+	CTORATstpLev2MdApi* demo_md_api = CTORATstpLev2MdApi::CreateTstpLev2MdApi();
+	//组播订阅lv2行情
+	//CTORATstpLev2MdApi *demo_md_api = CTORATstpLev2MdApi::CreateTstpLev2MdApi(TORA_TSTP_MST_MCAST);
+	//组播+缓存模式
+	//CTORATstpLev2MdApi* demo_md_api = CTORATstpLev2MdApi::CreateTstpLev2MdApi(TORA_TSTP_MST_MCAST, true);
+
+
+	// 创建回调对象
+	Lev2MdSpi md_spi(demo_md_api);
+
+	// 注册回调接口
+	demo_md_api->RegisterSpi(&md_spi);
+
+    
+#if 0  //实盘组播环境
+	//注册组播地址，实例构造时必须 CreateTstpLev2MdApi(TORA_TSTP_MST_MCAST)
+	const char* LEV2MD_MCAST_FrontAddress = "udp://224.224.224.15:7889";//行情A
+	//本机接收组播数据地址
+	const char* Interface_Address = "10.168.9.46";	//实盘时请指定相应的接收地址
+	demo_md_api->RegisterMulticast((char*)LEV2MD_MCAST_FrontAddress, (char*)Interface_Address, NULL);
+	printf("LEV2MD_MCAST_FrontAddress::%s\n", LEV2MD_MCAST_FrontAddress);
+#endif
+#if 0	//实盘TCP环境，在金桥综合区等部分区域使用
+	const char* Level2MD_TCP_FrontAddress = "tcp://10.1.1.1:6900";
+	demo_md_api->RegisterFront((char*)Level2MD_TCP_FrontAddress);
+	printf("Level2MD_TCP_FrontAddress[Real]::%s\n", Level2MD_TCP_FrontAddress);
+#endif
+	///*************************************************************
+	//上述地址为金桥机房16号节点的地址信息示例，客户实际地址信息请以邮件或对接群中提供的，托管服务器实际所在节点地址信息为准！
+	//*************************************************************
+
+	/*******************************互联网Level2测试桩说明*****************************
+	// * 7*24小时测试桩只做技术调试用途，无法验证业务完整性，历史某日行情轮播
+	// * Level2测试桩，上海和深圳分为两个独立环境，且仅支持TCP方式在互联网上测试
+	// * 需使用两个不同的实例进行处理或分别测试上海和深圳
+	// * *************************************************************************/
+#if 1	//7*24环境测试桩，仅支持TCP方式
+	const char* Level2MD_TCP_FrontAddress = "tcp://210.14.72.17:16900";//上海 
+	// const char* Level2MD_TCP_FrontAddress = "tcp://210.14.72.17:6900";//深圳
+	demo_md_api->RegisterFront((char*)Level2MD_TCP_FrontAddress);//上海
+	printf("Level2MD_TCP_FrontAddress[24H]::%s\n", Level2MD_TCP_FrontAddress);
+#endif
+
+    // 启动
+	demo_md_api->Init();
+	///Init(cpuCores) 绑核参数说明
+	///@param cpuCores：API内部线程绑核参数，默认不绑核运行
+	//                  "0"表示API内部线程绑定到第0核上运行
+	//					"0,5,18"表示API内部线程绑定到第0,第5，第18号核上运行                 
+	///@remark 初始化运行环境,只有调用后,接口才开始工作
+
+	// 等待结束
+	getchar();
+	//demo_md_api->join();
+
+	// 释放，注意不允许在回调函数内调用Release接口，否则会导致线程死锁
+	demo_md_api->Release();
+
+    // auto queue_node = XMLConfigEx::instance()->queue_node_;
+    // // CHECK_PTR(queue_node);
+    // {
+    //     nQueueList = 0;
+    //     auto item = queue_node->FirstChildElement();
+    //     while (item)
+    //     {
+    //         queueList[nQueueList].queueId = std::stoi(CHECK_VALUE_ABORT((char*)item->Attribute("id")));
+    //         queueList[nQueueList].msgTypes = CHECK_VALUE_ABORT((char*)(item->Attribute("types")));
+    //         queueList[nQueueList].cpuId = std::stoi(CHECK_VALUE_ABORT((char*)item->Attribute("cpuId")));
+    //         queueList[nQueueList].blockSize = std::stoi(CHECK_VALUE_ABORT((char*)item->Attribute("blockSize")));
+    //         queueList[nQueueList].dataCallback = recvData2;
+
+    //         item = item->NextSiblingElement();
+    //         nQueueList++;
+    //     }
+    // }
+
 
     
     /*
