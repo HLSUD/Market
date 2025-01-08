@@ -1211,7 +1211,7 @@ namespace TORALEV2API
 	/// Lev2逐笔行情(上海)
 	struct CTORATstpLev2NGTSTickField
 	{
-			
+   
 		///交易所代码
 		TTORATstpExchangeIDType	ExchangeID;
 

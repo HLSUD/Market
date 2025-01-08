@@ -1,12 +1,13 @@
 #pragma once
 # include <iostream>
 #include <cstring>
-#include "BseExanicStruct.h"
-#include "SseExanicStruct.h"
-#include "SzseExanicStruct.h"
+// #include "BseExanicStruct.h"
+// #include "SseExanicStruct.h"
+// #include "SzseExanicStruct.h"
+#include "Lev2Struct_Extension.h"
 #include <memory>
 
-using namespace istone::base;
+// using namespace istone::base;
 
 class iGoods {
 public:
@@ -14,15 +15,17 @@ public:
 
     virtual void Init() = 0;
 
-    virtual void onSseEntrust(SseEntrust* data) = 0;
-    virtual void onSseTrade(istone::base::SseTrade* data) = 0;
-    virtual void onSseDepth(istone::base::SseDepth* data, istone::base::DataType hasPrice) = 0;
-    virtual void onSseDepthFifty(SseDepthFifty* data) = 0;
+    virtual void onSseEntrust(TORALEV2API_V2::SHSseNGTS* data) = 0;
+    virtual void onSseTrade(TORALEV2API_V2::SHSseNGTS* data) = 0;
+    // virtual void onSseDepth(TORALEV2API_V2::SeSnapshot* data, istone::base::DataType hasPrice) = 0;
+    virtual void onSseSnapshot(TORALEV2API_V2::SeSnapshot* data) = 0;
+    // virtual void onSseDepthFifty(SseDepthFifty* data) = 0;
 
-    virtual void onSzseEntrust(SzseEntrust* data) = 0;
-    virtual void onSzseTrade(SzseTrade* data) = 0;
-    virtual void onSzseDepth(SzseDepth* data) = 0;
-    virtual void onSzseDepthFifty(SzseDepthFifty* data) = 0;
+    virtual void onSzseEntrust(TORALEV2API_V2::SzseEntrust* data) = 0;
+    virtual void onSzseTrade(TORALEV2API_V2::SzseTrade* data) = 0;
+    // virtual void onSzseDepth(TORALEV2API_V2::SeSnapshot* data) = 0;
+    virtual void onSzseSnapshot(TORALEV2API_V2::SeSnapshot* data) = 0;
+    // virtual void onSzseDepthFifty(SzseDepthFifty* data) = 0;
 };
 
 /**
@@ -38,7 +41,7 @@ public:
         //std::cout << "Init" << std::endl;
     }
 
-    virtual void onSseEntrust(SseEntrust* data) { 
+    virtual void onSseEntrust(TORALEV2API_V2::SHSseNGTS* data) { 
         std::cout << "onSseEntrust" << std::endl;
         if (std::strncmp(lastSecurityID, data->SecurityID, 8) == 0) {
                 std::cout << "推送的是同一只股票: " << std::string(data->SecurityID, 8) << std::endl;
@@ -52,10 +55,55 @@ public:
             // 更新最近的股票代码
             std::strncpy(lastSecurityID, data->SecurityID, 8);
         }
+        // printf("Shanghai Entrust SecurityID[%s] ", data->field->SecurityID);
+		// printf("ExchangeID[%c] ", data->field->ExchangeID);
+		// printf("MainSeq[%d] ", data->field->MainSeq);
+		// printf("SubSeq[%lld] ", data->field->SubSeq);
+		// printf("TickTime[%d] ", data->field->TickTime);
+		// printf("TickType[%c] ", data->field->TickType);
+		// printf("BuyNo[%lld] ", data->field->BuyNo);
+		// printf("SellNo[%lld] ", data->field->SellNo);
+		// printf("Price[%.2f] ", data->field->Price);
+		// printf("Volume[%lld] ", data->field->Volume);
+		// printf("TradeMoney[%.2f] ", data->field->TradeMoney);
+		// printf("Side[%c] ", data->field->Side);
+		// printf("TradeBSFlag[%d] ", data->field->TradeBSFlag);
+		// printf("Info1[%d] ", data->field->Info1);
+		// printf("Info2[%d] ", data->field->Info2);
+		// printf("Info3[%d] \n", data->field->Info3);
     }
+    
+    virtual void onSseTrade(TORALEV2API_V2::SHSseNGTS* data){ 
 
-    virtual void onSseTrade(SseTrade* data){ 
-        // std::cout << "onSseTrade" << std::endl;
+        std::cout << "onSseTrade" << std::endl;
+        if (std::strncmp(lastSecurityID, data->SecurityID, 8) == 0) {
+                std::cout << "推送的是同一只股票: " << std::string(data->SecurityID, 8) << std::endl;
+        } else {
+            if (std::string(lastSecurityID) != "")
+                std::cout << "推送的是不同的股票: " << std::string(data->SecurityID, 8) << std::endl;
+            else
+            {
+                std::cout << "首次推送股票: " << std::string(data->SecurityID, 8) << std::endl;
+            }
+            // 更新最近的股票代码
+            std::strncpy(lastSecurityID, data->SecurityID, 8);
+        }
+        // printf("Shanghai Trade SecurityID[%s] ", data->field->SecurityID);
+		// printf("ExchangeID[%c] ", data->field->ExchangeID);
+		// printf("MainSeq[%d] ", data->field->MainSeq);
+		// printf("SubSeq[%lld] ", data->field->SubSeq);
+		// printf("TickTime[%d] ", data->field->TickTime);
+		// printf("TickType[%c] ", data->field->TickType);
+		// printf("BuyNo[%lld] ", data->field->BuyNo);
+		// printf("SellNo[%lld] ", data->field->SellNo);
+		// printf("Price[%.2f] ", data->field->Price);
+		// printf("Volume[%lld] ", data->field->Volume);
+		// printf("TradeMoney[%.2f] ", data->field->TradeMoney);
+		// printf("Side[%c] ", data->field->Side);
+		// printf("TradeBSFlag[%d] ", data->field->TradeBSFlag);
+		// printf("Info1[%d] ", data->field->Info1);
+		// printf("Info2[%d] ", data->field->Info2);
+		// printf("Info3[%d] \n", data->field->Info3);
         // // 打印结构体内容
         // std::cout << "SseTrade Structure Details:" << std::endl;
         // std::cout << "-----------------------------------------" << std::endl;
@@ -69,7 +117,23 @@ public:
         // std::cout << "TradeMoney: " << data->TradeMoney / 100000.0 << std::endl; // 转换为实际金额
         // std::cout << "-----------------------------------------" << std::endl;
     }
-    virtual void onSseDepth(SseDepth* data, istone::base::DataType hasPrice){ 
+    
+    virtual void onSseSnapshot(TORALEV2API_V2::SeSnapshot* data){
+        std::cout << "onSseSnapshot" << std::endl;
+        if (std::strncmp(lastSecurityID, data->SecurityID, 8) == 0) {
+                std::cout << "推送的是同一只股票: " << std::string(data->SecurityID, 8) << std::endl;
+        } else {
+            if (std::string(lastSecurityID) != "")
+                std::cout << "推送的是不同的股票: " << std::string(data->SecurityID, 8) << std::endl;
+            else
+            {
+                std::cout << "首次推送股票: " << std::string(data->SecurityID, 8) << std::endl;
+            }
+            // 更新最近的股票代码
+            std::strncpy(lastSecurityID, data->SecurityID, 8);
+        }
+    }
+    // virtual void onSseDepth(SseDepth* data, istone::base::DataType hasPrice){ 
         // std::cout << "onSseDepth" << std::endl; 
         // std::cerr << code_ << ":" << mystr2(data->SecurityID) << std::endl;
         // std::cout << "SseDepth Structure Details:" << std::endl;
@@ -96,12 +160,12 @@ public:
         // }
         // std::cout << std::endl;
         // std::cout << "-----------------------------------------" << std::endl;
-    }
-    virtual void onSseDepthFifty(SseDepthFifty* data){ 
-        // std::cout << "onDepthFifty" << std::endl; 
-    }
+    // }
+    // virtual void onSseDepthFifty(SseDepthFifty* data){ 
+    //     // std::cout << "onDepthFifty" << std::endl; 
+    // }
 
-    virtual void onSzseEntrust(SzseEntrust* data){ 
+    virtual void onSzseEntrust(TORALEV2API_V2::SzseEntrust* data){ 
         std::cout << "onSzseEntrust" << std::endl; 
         //std::cerr << code_ << ":" << mystr2(data->SecurityID) << std::endl;
         if (std::strncmp(lastSecurityID, data->SecurityID, 8) == 0) {
@@ -117,23 +181,53 @@ public:
             std::strncpy(lastSecurityID, data->SecurityID, 8);
         }
     }
-    virtual void onSzseTrade(SzseTrade* data){ 
-        std::cout << "onSzseTrade" << std::endl;
-        // 打印各字段内容
-        std::cout << "MsgType: " << data->MsgType << std::endl;
-        std::cout << "MDStreamID: " << std::string(data->MDStreamID, 3) << std::endl;
-        std::cout << "Applseqnum: " << data->Applseqnum << std::endl;
-        std::cout << "BidApplSeqNum: " << data->BidApplSeqNum << std::endl;
-        std::cout << "OfferApplSeqNum: " << data->OfferApplSeqNum << std::endl;
-        std::cout << "SecurityID: " << std::string(data->SecurityID, 8) << std::endl;
-        std::cout << "ChannelNo: " << data->ChannelNo << std::endl;
-        std::cout << "ExecType: " << data->ExecType << std::endl;
-        std::cout << "TradePrice: " << data->TradePrice / 10000.0 << std::endl; // 转换为实际价格
-        std::cout << "TradeQty: " << data->TradeQty / 100.0 << std::endl;       // 转换为实际数量
-        std::cout << "TransactTime: " << data->TransactTime << std::endl;
-        std::cout << "Rsv1: " << std::string(data->Rsv1, 8) << std::endl;
-        std::cout << "-----------------------------------------" << std::endl;
+    virtual void onSzseTrade(TORALEV2API_V2::SzseTrade* data){
+        std::cout << "onSzseEntrust" << std::endl; 
+        //std::cerr << code_ << ":" << mystr2(data->SecurityID) << std::endl;
+        if (std::strncmp(lastSecurityID, data->SecurityID, 8) == 0) {
+                std::cout << "推送的是同一只股票: " << std::string(data->SecurityID, 8) << std::endl;
+        } else {
+            if (std::string(lastSecurityID) != "")
+                std::cout << "推送的是不同的股票: " << std::string(data->SecurityID, 8) << std::endl;
+            else
+            {
+                std::cout << "首次推送股票: " << std::string(data->SecurityID, 8) << std::endl;
+            }
+            // 更新最近的股票代码
+            std::strncpy(lastSecurityID, data->SecurityID, 8);
+        } 
+        // std::cout << "onSzseTrade" << std::endl;
+        // // 打印各字段内容
+        // std::cout << "MsgType: " << data->MsgType << std::endl;
+        // std::cout << "MDStreamID: " << std::string(data->MDStreamID, 3) << std::endl;
+        // std::cout << "Applseqnum: " << data->Applseqnum << std::endl;
+        // std::cout << "BidApplSeqNum: " << data->BidApplSeqNum << std::endl;
+        // std::cout << "OfferApplSeqNum: " << data->OfferApplSeqNum << std::endl;
+        // std::cout << "SecurityID: " << std::string(data->SecurityID, 8) << std::endl;
+        // std::cout << "ChannelNo: " << data->ChannelNo << std::endl;
+        // std::cout << "ExecType: " << data->ExecType << std::endl;
+        // std::cout << "TradePrice: " << data->TradePrice / 10000.0 << std::endl; // 转换为实际价格
+        // std::cout << "TradeQty: " << data->TradeQty / 100.0 << std::endl;       // 转换为实际数量
+        // std::cout << "TransactTime: " << data->TransactTime << std::endl;
+        // std::cout << "Rsv1: " << std::string(data->Rsv1, 8) << std::endl;
+        // std::cout << "-----------------------------------------" << std::endl;
     }
+    virtual void onSzseSnapshot(TORALEV2API_V2::SeSnapshot* data){
+        std::cout << "onSzseSnapshot" << std::endl;
+        if (std::strncmp(lastSecurityID, data->SecurityID, 8) == 0) {
+                std::cout << "推送的是同一只股票: " << std::string(data->SecurityID, 8) << std::endl;
+        } else {
+            if (std::string(lastSecurityID) != "")
+                std::cout << "推送的是不同的股票: " << std::string(data->SecurityID, 8) << std::endl;
+            else
+            {
+                std::cout << "首次推送股票: " << std::string(data->SecurityID, 8) << std::endl;
+            }
+            // 更新最近的股票代码
+            std::strncpy(lastSecurityID, data->SecurityID, 8);
+        }
+    }
+    /*
     virtual void onSzseDepth(SzseDepth* data){ 
         //std::cout << "onSzseDepth" << std::endl; 
         // std::cout << "SzseDepth Structure Details:" << std::endl;
@@ -150,7 +244,7 @@ public:
     virtual void onSzseDepthFifty(SzseDepthFifty* data){ 
         //std::cout << "onSzseDepth" << std::endl; 
     }
-    
+    */
 
 protected:
     int recvCnt_ = 0;

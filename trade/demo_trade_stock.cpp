@@ -39,6 +39,10 @@ const char *AccountID = "00032967";		//以Req(TradingAccount)查询的为准
 
 //上海交易所股东账号
 const char *SH_ShareHolderID = "A00032967";	//以Req(ShareholderAccount)查询的为准
+//深圳交易所股东账号
+const char *SZ_ShareHolderID = "700032967";	//以Req(ShareholderAccount)查询的为准
+//北京交易所股东账号
+const char *BJ_ShareHolderID = "B00032967";
 
 //登陆密码
 const char *Password = "53114834";		//N视界注册模拟账号的交易密码，不是登录密码
@@ -175,6 +179,7 @@ private:
 	void OnRspUserLogin(CTORATstpRspUserLoginField *pRspUserLoginField, CTORATstpRspInfoField *pRspInfo, int nRequestID)
 	{
         FILE *fp = fopen("output.txt", "a");
+        fprintf(fp, "---------------------\nStart...\n");
 		if (pRspInfo->ErrorID == 0)
 		{
 			fprintf(fp, "TradeApi OnRspUserLogin: OK! [%d]\n", nRequestID); 
@@ -276,7 +281,7 @@ private:
 			memset(&c_field, 0, sizeof(c_field));
 			
 			// 以下字段不填表示不设过滤条件，即查询所有报单
-			strcpy(c_field.SecurityID, "600000");
+			// strcpy(c_field.SecurityID, "600000");
 			//strcpy(field.InsertTimeStart, "09:35:00");
 			//strcpy(field.InsertTimeEnd, "10:30:00");
 
@@ -306,23 +311,23 @@ private:
 			}
 #endif
 
-#if 0
+#if 1
 			// 请求报单
 			CTORATstpInputOrderField field_oi;
 			memset(&field_oi, 0, sizeof(CTORATstpInputOrderField));
-		
-			field_oi.ExchangeID = TORA_TSTP_EXD_SSE;
-			strcpy(field_oi.ShareholderID, SH_ShareHolderID);
-			strcpy(field_oi.SecurityID, "600000");
+            // SH:TORA_TSTP_EXD_SSE, SZ: TORA_TSTP_EXD_SZSE
+			field_oi.ExchangeID = TORA_TSTP_EXD_SZSE;
+			strcpy(field_oi.ShareholderID, SZ_ShareHolderID);
+			strcpy(field_oi.SecurityID, "000027");
 			field_oi.Direction = TORA_TSTP_D_Buy;
-			field_oi.VolumeTotalOriginal = 200;
+			field_oi.VolumeTotalOriginal = 100;
 
 			// 上交所支持限价指令和最优五档剩撤、最优五档剩转限两种市价指令，对于科创板额外支持本方最优和对手方最优两种市价指令和盘后固定价格申报指令
 			// 深交所支持限价指令和立即成交剩余撤销、全额成交或撤销、本方最优、对手方最优和最优五档剩撤五种市价指令
 			// 限价指令和上交所科创板盘后固定价格申报指令需填写报单价格，其它市价指令无需填写报单价格
 			// 以下以上交所限价指令为例，其它指令参考开发指南相关说明填写OrderPriceType、TimeCondition和VolumeCondition三个字段:
-			field_oi.LimitPrice = 10.15;
-			field_oi.OrderPriceType = TORA_TSTP_OPT_LimitPrice;
+			// field_oi.LimitPrice = 10.20;
+			field_oi.OrderPriceType = TORA_TSTP_OPT_HomeBestPrice;
 			field_oi.TimeCondition = TORA_TSTP_TC_GFD;
 			field_oi.VolumeCondition = TORA_TSTP_VC_AV;
 
@@ -364,7 +369,7 @@ private:
 			//field.FrontID = m_front_id;
 			//field.SessionID = m_session_id;
 			// （2）系统报单编号方式
-			strcpy(recall_field.OrderSysID, "110018100065606");
+			strcpy(recall_field.OrderSysID, "110018100063664");
 
 
 			// OrderActionRef报单操作引用，用法同报单引用，可根据需要选填

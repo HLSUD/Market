@@ -1,16 +1,18 @@
 #pragma once
-#include <iostream>
+// #include <iostream>
+#include <functional>
+#include <vector>
+#include <stdio.h>
+// #include <stdlib.h>
+#include <string>
+#include <map>
+#include <thread>
 #include "readerwriterqueue.h"
 #include "atomicops.h"
 #include "KsTool.h"
 #include "ksGoods.h"
-#include <functional>
-#include <vector>
-#include <cstdio>
-#include <cstdlib>
-#include <string>
-#include <map>
-#include <thread>
+#include "TORATstpLev2ApiStruct.h"
+#include "Lev2Struct_Extension.h"
 
 
 using namespace moodycamel;
@@ -43,42 +45,50 @@ private:
             {
                 // printf("Got data...\n");
                 //threadFunction(buff.c_str());
-                auto code = KsTool::getCode(buff.c_str());
-                char type = buff.at(0);
-                auto g = map_goods_[code];
                 const char* data=buff.c_str();
+                char type = data[0];
+                // printf("Type %c\n",type);
+                auto code = KsTool::getCode(data);
+                auto g = map_goods_[code];
+
                 switch (type)
                 {
                     //sh
-                    case sseEntrustType:
-                        g->onSseEntrust((SseEntrust*)data);
+                    case TORALEV2API_V2::sseEntrustType:
+                        g->onSseEntrust((TORALEV2API_V2::SHSseNGTS*)data);
                         break;
-                    case sseTradeType:
-                        g->onSseTrade((SseTrade*)data);
+                    case TORALEV2API_V2::sseTradeType:
+                        g->onSseTrade((TORALEV2API_V2::SHSseNGTS*)data);
                         break;
-                    case sseDepthType1:
-                        g->onSseDepth((SseDepth*)data, NO_PRICE);
+                    case TORALEV2API_V2::sseSnapshotType:
+                        g->onSseSnapshot((TORALEV2API_V2::SeSnapshot*)data);
                         break;
-                    case sseDepthType0:
-                        g->onSseDepth((SseDepth*)data, HAS_PRICE);
-                        break;
-                    case sseDepthFiftyType:
-                        g->onSseDepthFifty((SseDepthFifty*)data);
-                        break;
-                    //todo
+                    // case TORALEV2API_V2::sseDepthType1:
+                    //     g->onSseDepth((SseDepth*)data, NO_PRICE);
+                    //     break;
+                    // case TORALEV2API_V2::sseDepthType0:
+                    //     g->onSseDepth((SseDepth*)data, HAS_PRICE);
+                    //     break;
+                    // case TORALEV2API_V2::sseDepthFiftyType:
+                    //     g->onSseDepthFifty((SseDepthFifty*)data);
+                    //     break;
+                    // //todo
                     //sz
-                    case szseEntrustType:
-                        g->onSzseEntrust((SzseEntrust*)data);
+                    case TORALEV2API_V2::szseEntrustType:
+                        g->onSzseEntrust((TORALEV2API_V2::SzseEntrust*)data);
                         break;
-                    case szseTradeType:
-                        g->onSzseTrade((SzseTrade*)data);
+                    case TORALEV2API_V2::szseTradeType:
+                        g->onSzseTrade((TORALEV2API_V2::SzseTrade*)data);
                         break;
-                    case szseDepthFiftyType:
-                        g->onSzseDepthFifty((SzseDepthFifty*)data);
+                    case TORALEV2API_V2::szseSnapshotType:
+                        g->onSzseSnapshot((TORALEV2API_V2::SeSnapshot*)data);
                         break;
-                    case szseDepthOrOptionType:
-                        g->onSzseDepth((SzseDepth*)data);
-                        break;
+                    // case TORALEV2API_V2::szseDepthFiftyType:
+                    //     g->onSzseDepthFifty((SzseDepthFifty*)data);
+                    //     break;
+                    // case TORALEV2API_V2::szseDepthOrOptionType:
+                    //     g->onSzseDepth((SzseDepth*)data);
+                    //     break;
                     // default:
                     //     std::cout << "New option.\n";
                     //     g->onSseEntrust((TORALEV2API::CTORATstpLev2NGTSTickField*)data);

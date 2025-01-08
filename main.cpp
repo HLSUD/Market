@@ -138,8 +138,9 @@ int main(int argc, char* argv[])
         // get num of threads and stock codes
         // auto queueNum = std::atoi(user_node->FirstChildElement("queueNum")->GetText()); 
         // auto codes = user_node->FirstChildElement("codes")->GetText();
-        auto queueNum = 2;
-        auto codes = "600001,600002,600003,600004,600005,600006,600007,600008,600009";
+        auto queueNum = 1;
+        // auto codes = "600001,600002,600003,600004,600005,600006,600007,600008,600009";
+        auto codes = "300001,300002,300003,300004,300005,300006,300007,300008,300009";
         //std::cerr << codes;
 
         v = splitString(codes, ",", true);
@@ -203,8 +204,8 @@ int main(int argc, char* argv[])
 	// * 需使用两个不同的实例进行处理或分别测试上海和深圳
 	// * *************************************************************************/
 #if 1	//7*24环境测试桩，仅支持TCP方式
-	const char* Level2MD_TCP_FrontAddress = "tcp://210.14.72.17:16900";//上海 
-	// const char* Level2MD_TCP_FrontAddress = "tcp://210.14.72.17:6900";//深圳
+	// const char* Level2MD_TCP_FrontAddress = "tcp://210.14.72.17:16900";//上海 
+	const char* Level2MD_TCP_FrontAddress = "tcp://210.14.72.17:6900";//深圳
 	demo_md_api->RegisterFront((char*)Level2MD_TCP_FrontAddress);//上海
 	printf("Level2MD_TCP_FrontAddress[24H]::%s\n", Level2MD_TCP_FrontAddress);
 #endif
@@ -259,11 +260,8 @@ int main(int argc, char* argv[])
         return -1;
     }
     */
-    std::cout << std::endl << "\nPress Ctrl+C to terminate program." << std::endl;
-    while (1)
-    {
-        sleep(500);
-    }
+    std::cout << std::endl << "\nPress the Keyboard to terminate program." << std::endl;
+    getchar();
     
     return 0;
 }
