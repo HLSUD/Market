@@ -15,6 +15,7 @@
 // #include "DataFeed.h"
 #include "Lev2MdSpi.h"
 #include "ksGoods.h"
+#include "stock.h"
 #include "rwqueue/readerwriterqueue.h"
 #include "rwqueue/DataFileManager.h"
 
@@ -53,16 +54,16 @@ namespace
     //     std::cerr << "\ttcp status:[code:" << type << "], msg:" << msg << std::endl;
     // }
 
-    bool startMyTasksThread(std::vector<std::string>& v, size_t numThreads = 2)
+    bool startMyTasksThread(std::vector<Stock>& stocks, size_t numThreads = 2)
     {    
 
         static std::unordered_map <std::string, size_t> code2idx1;
-        for(int i= 0;i < v.size(); i++)
+        for(int i= 0;i < stocks.size(); i++)
         {
-            code2idx1[v.at(i)] = i % numThreads;
-
-            iGoods* g = new goods(v.at(i));
-            DataFileManager::getInstance().insertCode(v.at(i), g);
+            std::string code = stocks.at(i).get_stock_id();
+            code2idx1[code] = i % numThreads;
+            iGoods* g = new goods(stocks.at(i));
+            DataFileManager::getInstance().insertCode(code, g);
         }
        
         auto myHash = [&](std::string& code) {
@@ -138,19 +139,20 @@ int main(int argc, char* argv[])
         // get num of threads and stock codes
         // auto queueNum = std::atoi(user_node->FirstChildElement("queueNum")->GetText()); 
         // auto codes = user_node->FirstChildElement("codes")->GetText();
-        auto queueNum = 1;
+        auto queueNum = 2;
         // auto codes = "600001,600002,600003,600004,600005,600006,600007,600008,600009";
-        auto codes = "300001,300002,300003,300004,300005,300006,300007,300008,300009";
-        //std::cerr << codes;
+        std::string filename = "data/pool1.csv";
+        std::vector<Stock> stock_data;
 
-        v = splitString(codes, ",", true);
+        // Load CSV
+        loadCSV(filename, stock_data);
         
-        for(auto _ : v)
+        for(auto _ : stock_data)
         {
-            std::cerr << _ << " ";
+            std::cerr << _.get_stock_id() << " ";
         }
         
-        if(!startMyTasksThread(v, queueNum))
+        if(!startMyTasksThread(stock_data, queueNum))
         {
             std::cerr << "failed to start task thread";
         }

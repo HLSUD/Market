@@ -5,6 +5,7 @@
 // #include "SseExanicStruct.h"
 // #include "SzseExanicStruct.h"
 #include "Lev2Struct_Extension.h"
+#include "stock.h"
 #include <memory>
 
 // using namespace istone::base;
@@ -33,9 +34,14 @@ public:
  */
 class goods : public iGoods {
 public:
-    goods(const std::string& code):code_(code){
-    }
+    // goods(const std::string& code):code_(code){
+    // }
 
+    goods(Stock& stock){
+        code_ = stock.get_stock_id();
+        market_cap = stock.get_cap();
+        price_limit = stock.get_price_limit();
+    }
 
     virtual void Init() {
         //std::cout << "Init" << std::endl;
@@ -186,6 +192,7 @@ public:
         //std::cerr << code_ << ":" << mystr2(data->SecurityID) << std::endl;
         if (std::strncmp(lastSecurityID, data->SecurityID, 8) == 0) {
                 std::cout << "推送的是同一只股票: " << std::string(data->SecurityID, 8) << std::endl;
+                printf("Market cap: %lf, price limit: %lf\n", market_cap,price_limit);
         } else {
             if (std::string(lastSecurityID) != "")
                 std::cout << "推送的是不同的股票: " << std::string(data->SecurityID, 8) << std::endl;
@@ -249,6 +256,8 @@ public:
 protected:
     int recvCnt_ = 0;
     std::string code_;
+    double market_cap;
+    double price_limit;
     char lastSecurityID[8] = {0};
 };
 

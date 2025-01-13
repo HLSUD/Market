@@ -2,6 +2,7 @@ set(base_SRCS_ex
 	Lev2MdSpi.cpp
 	KsTool.cc
 	main.cpp
+    stock.cpp
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
