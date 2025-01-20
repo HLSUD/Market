@@ -46,10 +46,10 @@ Lev2MdSpi::~Lev2MdSpi(void)
  void Lev2MdSpi::OnFrontConnected()
 {
     printf("OnFrontConnected!\n");
-    CTORATstpReqUserLoginField acc;
+    TORALEV2API::CTORATstpReqUserLoginField acc;
     memset(&acc, 0, sizeof(acc));
     strcpy(acc.LogInAccount, "lev2tester");
-    acc.LogInAccountType = TORA_TSTP_LACT_UserID;
+    acc.LogInAccountType = TORALEV2API::TORA_TSTP_LACT_UserID;
     strcpy(acc.Password, "123456");
 
     int ret = m_api->ReqUserLogin(&acc, ++m_req_id);
@@ -63,19 +63,19 @@ Lev2MdSpi::~Lev2MdSpi(void)
 };
 
 ///错误应答
- void Lev2MdSpi::OnRspError(CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+ void Lev2MdSpi::OnRspError(TORALEV2API::CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
     printf("OnRspError!\n");
 };
 
 ///登录请求响应
- void Lev2MdSpi::OnRspUserLogin(CTORATstpRspUserLoginField* pRspUserLogin, CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+ void Lev2MdSpi::OnRspUserLogin(TORALEV2API::CTORATstpRspUserLoginField* pRspUserLogin, TORALEV2API::CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
     if (pRspInfo && pRspInfo->ErrorID == 0)
     {
         printf("OnRspUserLogin Success!\n");
 
-	#if 0		//上海
+	#if SHANGHAI		//上海
 				int eid = TORA_TSTP_EXD_SSE;
 				char* Securities[2];
 				// Securities[0] = (char*)"00000000";//订阅所有合约
@@ -87,8 +87,8 @@ Lev2MdSpi::~Lev2MdSpi(void)
 				//Securities[0] = (char*) "000001";//订阅上证指数,，全部指数用"00000000"
 				//Securities[0] = (char*) "113537";//可转债
 
-	#elif 1 	//深圳
-				int eid = TORA_TSTP_EXD_SZSE;
+	#elif SHENZHEN 	//深圳
+				int eid = TORALEV2API::TORA_TSTP_EXD_SZSE;
 				char* Securities[2];
 				//char* Securities[3];
 				Securities[0] = (char*)"30****";
@@ -110,7 +110,7 @@ Lev2MdSpi::~Lev2MdSpi(void)
 	#endif
 
 
-	#if 1	//快照行情订阅
+	#if SNAPSHOT	//快照行情订阅
 				int ret_md = m_api->SubscribeMarketData(Securities, sizeof(Securities) / sizeof(char*), eid);
 				if (ret_md == 0)
 				{
@@ -121,7 +121,7 @@ Lev2MdSpi::~Lev2MdSpi(void)
 					printf("SubscribeMarketData:::Failed, ret=%d)\n", ret_md);
 				}
 	#endif
-	#if 1	//逐笔成交订阅（仅深圳有效，且不含深圳普通债券）
+	#if TRANSACTIONSZ	//逐笔成交订阅（仅深圳有效，且不含深圳普通债券）
 				int ret_t = m_api->SubscribeTransaction(Securities, sizeof(Securities) / sizeof(char*), eid);
 				if (ret_t == 0)
 				{
@@ -132,7 +132,7 @@ Lev2MdSpi::~Lev2MdSpi(void)
 					printf("SubscribeTransaction:::Failed,ret=%d)\n", ret_t);
 				}
 	#endif
-	#if 1	//逐笔委托订阅（仅深圳有效，且不含深圳普通债券）
+	#if ENTRUSHTSZ	//逐笔委托订阅（仅深圳有效，且不含深圳普通债券）
 				int ret_od = m_api->SubscribeOrderDetail(Securities, sizeof(Securities) / sizeof(char*), eid);
 				if (ret_od == 0)
 				{
@@ -176,7 +176,7 @@ Lev2MdSpi::~Lev2MdSpi(void)
 					printf("SubscribeIndex:::Failed, ret=%d\n)", ret_xtx_t);
 				}
 	#endif
-	#if 0	//上海合并逐笔NGTS订阅
+	#if NGTSSH	//上海合并逐笔NGTS订阅
 				int ret_ngs_t = m_api->SubscribeNGTSTick(Securities, sizeof(Securities) / sizeof(char*), eid);
 				if (ret_ngs_t == 0)
 				{
@@ -197,14 +197,14 @@ Lev2MdSpi::~Lev2MdSpi(void)
 
 /***********************************响应应答函数***********************************/
     ///登出请求响应
- void Lev2MdSpi::OnRspUserLogout(CTORATstpUserLogoutField* pUserLogout, CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+ void Lev2MdSpi::OnRspUserLogout(TORALEV2API::CTORATstpUserLogoutField* pUserLogout, TORALEV2API::CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
     printf("OnRspUserLogout!\n");
 
 };
 
 ///订阅快照行情应答
- void Lev2MdSpi::OnRspSubMarketData(CTORATstpSpecificSecurityField* pSpecificSecurity, CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+ void Lev2MdSpi::OnRspSubMarketData(TORALEV2API::CTORATstpSpecificSecurityField* pSpecificSecurity, TORALEV2API::CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
     if (pRspInfo && pRspInfo->ErrorID == 0 && pSpecificSecurity)
     {
@@ -214,7 +214,7 @@ Lev2MdSpi::~Lev2MdSpi(void)
 };
 
 ///取消订阅行情应答
- void Lev2MdSpi::OnRspUnSubMarketData(CTORATstpSpecificSecurityField* pSpecificSecurity, CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+ void Lev2MdSpi::OnRspUnSubMarketData(TORALEV2API::CTORATstpSpecificSecurityField* pSpecificSecurity, TORALEV2API::CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
     printf("OnRspUnSubMarketData SecurityID[%s] ExchangeID[%c]!\n", pSpecificSecurity->SecurityID, pSpecificSecurity->ExchangeID);
 
@@ -231,7 +231,7 @@ Lev2MdSpi::~Lev2MdSpi(void)
 };
 
 // 订阅逐笔成交行情应答
- void Lev2MdSpi::OnRspSubTransaction(CTORATstpSpecificSecurityField* pSpecificSecurity, CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+ void Lev2MdSpi::OnRspSubTransaction(TORALEV2API::CTORATstpSpecificSecurityField* pSpecificSecurity, TORALEV2API::CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
     if (pRspInfo && pRspInfo->ErrorID == 0 && pSpecificSecurity)
     {
@@ -241,7 +241,7 @@ Lev2MdSpi::~Lev2MdSpi(void)
 };
 
 ///订阅逐笔委托行情应答
- void Lev2MdSpi::OnRspSubOrderDetail(CTORATstpSpecificSecurityField* pSpecificSecurity, CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+ void Lev2MdSpi::OnRspSubOrderDetail(TORALEV2API::CTORATstpSpecificSecurityField* pSpecificSecurity, TORALEV2API::CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
     if (pRspInfo && pRspInfo->ErrorID == 0 && pSpecificSecurity)
     {
@@ -251,7 +251,7 @@ Lev2MdSpi::~Lev2MdSpi(void)
 };
 
 //订阅新债逐笔行情应答
- void Lev2MdSpi::OnRspSubXTSTick(CTORATstpSpecificSecurityField* pSpecificSecurity, CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+ void Lev2MdSpi::OnRspSubXTSTick(TORALEV2API::CTORATstpSpecificSecurityField* pSpecificSecurity, TORALEV2API::CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
     if (pRspInfo && pRspInfo->ErrorID == 0 && pSpecificSecurity)
     {
@@ -261,7 +261,7 @@ Lev2MdSpi::~Lev2MdSpi(void)
 };
 
 //订阅上海合并流逐笔响应
- void Lev2MdSpi::OnRspUnSubNGTSTick(CTORATstpSpecificSecurityField* pSpecificSecurity, CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+ void Lev2MdSpi::OnRspUnSubNGTSTick(TORALEV2API::CTORATstpSpecificSecurityField* pSpecificSecurity, TORALEV2API::CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
     if (pRspInfo && pRspInfo->ErrorID == 0 && pSpecificSecurity)
     {
@@ -271,8 +271,8 @@ Lev2MdSpi::~Lev2MdSpi(void)
 };
 
 ///订阅上海XTS债券行情应答
- void Lev2MdSpi::OnRspSubXTSMarketData(CTORATstpSpecificSecurityField* pSpecificSecurity,
-    CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+ void Lev2MdSpi::OnRspSubXTSMarketData(TORALEV2API::CTORATstpSpecificSecurityField* pSpecificSecurity,
+    TORALEV2API::CTORATstpRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
     if (bIsLast)
     {
@@ -486,73 +486,3 @@ Lev2MdSpi::~Lev2MdSpi(void)
     // printf("%c\n", data->type);
     
 };
-
-
-/*
-int main()
-{
-	// 打印接口版本号
-	printf("Level2MdApiVersion::[%s]\n", CTORATstpLev2MdApi::GetApiVersion());
-
-	// 创建接口对象
-	////TCP订阅lv2行情，前置Front和FENS方式都用默认构造
-	CTORATstpLev2MdApi* demo_md_api = CTORATstpLev2MdApi::CreateTstpLev2MdApi();
-	//组播订阅lv2行情
-	//CTORATstpLev2MdApi *demo_md_api = CTORATstpLev2MdApi::CreateTstpLev2MdApi(TORA_TSTP_MST_MCAST);
-	//组播+缓存模式
-	//CTORATstpLev2MdApi* demo_md_api = CTORATstpLev2MdApi::CreateTstpLev2MdApi(TORA_TSTP_MST_MCAST, true);
-
-
-	// 创建回调对象
-	Lev2MdSpi md_spi(demo_md_api);
-
-	// 注册回调接口
-	demo_md_api->RegisterSpi(&md_spi);
-
-#if 0  //实盘组播环境
-	//注册组播地址，实例构造时必须 CreateTstpLev2MdApi(TORA_TSTP_MST_MCAST)
-	const char* LEV2MD_MCAST_FrontAddress = "udp://224.224.224.15:7889";//行情A
-	//本机接收组播数据地址
-	const char* Interface_Address = "10.168.9.46";	//实盘时请指定相应的接收地址
-	demo_md_api->RegisterMulticast((char*)LEV2MD_MCAST_FrontAddress, (char*)Interface_Address, NULL);
-	printf("LEV2MD_MCAST_FrontAddress::%s\n", LEV2MD_MCAST_FrontAddress);
-#endif
-#if 0	//实盘TCP环境，在金桥综合区等部分区域使用
-	const char* Level2MD_TCP_FrontAddress = "tcp://10.1.1.1:6900";
-	demo_md_api->RegisterFront((char*)Level2MD_TCP_FrontAddress);
-	printf("Level2MD_TCP_FrontAddress[Real]::%s\n", Level2MD_TCP_FrontAddress);
-#endif
-	///*************************************************************
-	//上述地址为金桥机房16号节点的地址信息示例，客户实际地址信息请以邮件或对接群中提供的，托管服务器实际所在节点地址信息为准！
-	//*************************************************************
-
-	/*******************************互联网Level2测试桩说明*****************************
-	// * 7*24小时测试桩只做技术调试用途，无法验证业务完整性，历史某日行情轮播
-	// * Level2测试桩，上海和深圳分为两个独立环境，且仅支持TCP方式在互联网上测试
-	// * 需使用两个不同的实例进行处理或分别测试上海和深圳
-	// * *************************************************************************
-#if 1	//7*24环境测试桩，仅支持TCP方式
-	const char* Level2MD_TCP_FrontAddress = "tcp://210.14.72.17:16900";//上海 
-	// const char* Level2MD_TCP_FrontAddress = "tcp://210.14.72.17:6900";//深圳
-	demo_md_api->RegisterFront((char*)Level2MD_TCP_FrontAddress);//上海
-	printf("Level2MD_TCP_FrontAddress[24H]::%s\n", Level2MD_TCP_FrontAddress);
-#endif
-
-	// 启动
-	demo_md_api->Init();
-	///Init(cpuCores) 绑核参数说明
-	///@param cpuCores：API内部线程绑核参数，默认不绑核运行
-	//                  "0"表示API内部线程绑定到第0核上运行
-	//					"0,5,18"表示API内部线程绑定到第0,第5，第18号核上运行                 
-	///@remark 初始化运行环境,只有调用后,接口才开始工作
-
-	// 等待结束
-	getchar();
-	//demo_md_api->join();
-
-	// 释放，注意不允许在回调函数内调用Release接口，否则会导致线程死锁
-	demo_md_api->Release();
-
-	return 0;
-}
-*/

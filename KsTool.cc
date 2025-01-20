@@ -7,11 +7,13 @@
 #include "rwqueue/KsTool.h"
 #include "TORATstpLev2ApiStruct.h"
 #include "Lev2Struct_Extension.h"
-#include "KsHSInterfaceEx.h"
+// #include "KsHSInterfaceEx.h"
 
 
 namespace
 {
+    #define mystr2(x)  std::string(x, sizeof(x)).c_str()
+
     struct STRUCTSIZE
     {
         char type;

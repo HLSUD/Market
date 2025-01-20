@@ -20,6 +20,7 @@
 #include "rwqueue/DataFileManager.h"
 
 #include <signal.h>
+#include <memory.h>
 // #ifdef __LINUX__
 // #include <signal.h>
 // #endif
@@ -54,7 +55,7 @@ namespace
     //     std::cerr << "\ttcp status:[code:" << type << "], msg:" << msg << std::endl;
     // }
 
-    bool startMyTasksThread(std::vector<Stock>& stocks, size_t numThreads = 2)
+    bool startMyTasksThread(std::vector<Stock>& stocks, size_t numThreads, TradeSpi *trade_spi)
     {    
 
         static std::unordered_map <std::string, size_t> code2idx1;
@@ -62,7 +63,7 @@ namespace
         {
             std::string code = stocks.at(i).get_stock_id();
             code2idx1[code] = i % numThreads;
-            iGoods* g = new goods(stocks.at(i));
+            iGoods* g = new goods(stocks.at(i), trade_spi);
             DataFileManager::getInstance().insertCode(code, g);
         }
        
@@ -135,11 +136,66 @@ int main(int argc, char* argv[])
     }
 
     std::vector<std::string> v;
-    {
+    
+    // *********************************
+    // trade api 
+    TORASTOCKAPI::CTORATstpTraderApi *demo_trade_api = TORASTOCKAPI::CTORATstpTraderApi::CreateTstpTraderApi("./flow", false);
+
+	// 创建回调对象
+    
+	TradeSpi* trade_spi = new TradeSpi(demo_trade_api, TraderConfig::instance());
+    
+	// 注册回调接口
+	demo_trade_api->RegisterSpi(trade_spi);
+
+#if 1	//模拟环境，TCP 直连Front方式
+	// 注册单个交易前置服务地址
+	const char* TD_TCP_FrontAddress="tcp://210.14.72.21:4400";//仿真交易环境
+	//const char* TD_TCP_FrontAddress="tcp://210.14.72.15:4400";//24小时环境A套
+	//const char* TD_TCP_FrontAddress="tcp://210.14.72.16:9500";////24小时环境B套
+	demo_trade_api->RegisterFront((char*)TD_TCP_FrontAddress);
+	// 注册多个交易前置服务地址，用逗号隔开
+	//demo_trade_api->RegisterFront("tcp://10.0.1.101:6500,tcp://10.0.1.101:26500");
+	printf("TD_TCP_FensAddress[sim or 24H]::%s\n", TD_TCP_FrontAddress);
+
+#else	//模拟环境，FENS名字服务器方式
+	const char* TD_TCP_FensAddress ="tcp://210.14.72.21:42370";//模拟环境通用fens地址
+	/********************************************************************************
+	 * 注册 fens 地址前还需注册 fens 用户信息，包括环境编号、节点编号、Fens 用户代码等信息
+	 * 使用名字服务器的好处是当券商系统部署方式发生调整时外围终端无需做任何前置地址修改
+	 * *****************************************************************************/
+	TORASTOCKAPI::CTORATstpFensUserInfoField fens_user_info_field;
+	memset(&fens_user_info_field, 0, sizeof(fens_user_info_field));
+	strcpy(fens_user_info_field.FensEnvID,"stock");//必填项，暂时固定为“stock”表示普通现货柜台
+	strcpy(fens_user_info_field.FensNodeID, "sim");//必填项，生产环境需按实际填写,仿真环境为sim
+	//strcpy(fens_user_info_field.FensNodeID, "24a");//必填项，生产环境需按实际填写,24小时A套环境为24a
+	//strcpy(fens_user_info_field.FensNodeID, "24b");//必填项，生产环境需按实际填写,24小时B套环境为24b
+	demo_trade_api->RegisterFensUserInfo(&fens_user_info_field);
+	demo_trade_api->RegisterNameServer((char*)TD_TCP_FensAddress);
+	printf("TD_TCP_FensAddress[%s]::%s\n", fens_user_info_field.FensNodeID,TD_TCP_FensAddress);
+
+#endif
+
+
+
+
+	// 订阅公有流和私有流
+	demo_trade_api->SubscribePrivateTopic(TORASTOCKAPI::TORA_TERT_QUICK);
+	demo_trade_api->SubscribePublicTopic(TORASTOCKAPI::TORA_TERT_QUICK);
+
+
+    // 启动
+    demo_trade_api->Init();
+    while(1){
+        if (trade_spi->get_login_status()){
+            break;
+        }
+    };
+    
         // get num of threads and stock codes
         // auto queueNum = std::atoi(user_node->FirstChildElement("queueNum")->GetText()); 
         // auto codes = user_node->FirstChildElement("codes")->GetText();
-        auto queueNum = 2;
+        auto queueNum = 1;
         // auto codes = "600001,600002,600003,600004,600005,600006,600007,600008,600009";
         std::string filename = "data/pool1.csv";
         std::vector<Stock> stock_data;
@@ -152,17 +208,15 @@ int main(int argc, char* argv[])
             std::cerr << _.get_stock_id() << " ";
         }
         
-        if(!startMyTasksThread(stock_data, queueNum))
+        if(!startMyTasksThread(stock_data, queueNum, trade_spi))
         {
             std::cerr << "failed to start task thread";
         }
         
-    }
-
     
 
     //调用初始化函数
-    std::cerr << "\nstart to into istone_start";
+//     std::cerr << "\nstart to into istone_start";
 
     // 打印接口版本号
 	printf("Level2MdApiVersion::[%s]\n", CTORATstpLev2MdApi::GetApiVersion());
@@ -211,14 +265,18 @@ int main(int argc, char* argv[])
 	demo_md_api->RegisterFront((char*)Level2MD_TCP_FrontAddress);//上海
 	printf("Level2MD_TCP_FrontAddress[24H]::%s\n", Level2MD_TCP_FrontAddress);
 #endif
-
-    // 启动
 	demo_md_api->Init();
+    printf("----------------------\n");
+    // trade_spi.query_map_["000027"] = 0;
+    // for (const auto & pair: trade_spi.query_map_){
+    //     std::cout << pair.first << pair.second<<std::endl;
+    // }
 	///Init(cpuCores) 绑核参数说明
 	///@param cpuCores：API内部线程绑核参数，默认不绑核运行
 	//                  "0"表示API内部线程绑定到第0核上运行
 	//					"0,5,18"表示API内部线程绑定到第0,第5，第18号核上运行                 
 	///@remark 初始化运行环境,只有调用后,接口才开始工作
+
 
 	// 等待结束
 	getchar();
@@ -264,6 +322,7 @@ int main(int argc, char* argv[])
     */
     std::cout << std::endl << "\nPress the Keyboard to terminate program." << std::endl;
     getchar();
+    // delete &trade_spi;
     
     return 0;
 }

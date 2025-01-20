@@ -9,6 +9,13 @@
 
 using namespace TORALEV2API;
 
+#define SHANGHAI 0
+#define SHENZHEN 1
+#define ENTRUSHTSZ 1
+#define TRANSACTIONSZ 1
+#define SNAPSHOT 1
+#define NGTSSH 0
+
 class Lev2MdSpi : public CTORATstpLev2MdSpi
 {
 	public:

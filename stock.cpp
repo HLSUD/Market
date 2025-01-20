@@ -3,6 +3,9 @@
 #include <fstream>
 #include <sstream>
 #include "stock.h"
+#include "goodsbase.h"
+#include "TORATstpTraderApi.h"
+#include "TraderConfig.h"
 
 std::string Stock::get_stock_id(){
     return stock_id;
