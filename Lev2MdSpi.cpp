@@ -92,7 +92,7 @@ Lev2MdSpi::~Lev2MdSpi(void)
 				char* Securities[2];
 				//char* Securities[3];
 				Securities[0] = (char*)"30****";
-				Securities[1] = (char*) "00***";
+				Securities[1] = (char*) "00****";
 				//Securities[2] = (char*) "000650";
 				//Securities[0] = (char*) "123013";//可转债
 				//Securities[0] = (char*) "00000000";//8个0查全部

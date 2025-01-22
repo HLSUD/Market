@@ -20,6 +20,9 @@ void goodsbase::Buy(int qty, double price) {
 		else
 		{
 			printf("---\n请求下单成功, %s \n", code_.c_str());
+            _tradeApi->buy_num_mtx.lock();
+            _tradeApi->total_buy_num++;
+            _tradeApi->buy_num_mtx.unlock();
 		}
 	}
 }

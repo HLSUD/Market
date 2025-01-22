@@ -21,10 +21,13 @@
 
 #include <signal.h>
 #include <memory.h>
-// #ifdef __LINUX__
-// #include <signal.h>
-// #endif
 
+// 1. get position ok
+// 2. load pool, query all, append code ok
+// 3. 错误 print
+// 4. // lock total_buy_num = total_buy_num + 1; // unlock (mutex) ok
+// 5. check every request have different position addresss
+// 6. exchange id as parameter ok
 namespace
 {
     // IDataInterface* pNotify;
@@ -97,27 +100,27 @@ namespace
         switch (type)
         {
             //sh
-        case 'a':
-           
-        case 'b':
+            case 'a':
             
-        case 'd':
-            
-        case 'e':
-            
-        case 'f':
-            
+            case 'b':
+                
+            case 'd':
+                
+            case 'e':
+                
+            case 'f':
+                
 
             //sz
-        case 'C':
-            
-        case 'D':
-            
-        case 'E':
-            
-        case 'F':
-            DataFileManager::getInstance().push(data,-1);
-            break;
+            case 'C':
+                
+            case 'D':
+                
+            case 'E':
+                
+            case 'F':
+                DataFileManager::getInstance().push(data,-1);
+                break;
         }
         
     }
@@ -125,6 +128,18 @@ namespace
 
 int main(int argc, char* argv[])
 {
+    if (argc < 2) {
+        std::cerr << "Please provide a number as a command-line argument.\n";
+        return 1;
+    }
+
+    // argv[1] contains the first argument as a string
+    std::string arg = argv[1];
+
+    // Convert the string argument to an integer
+    int exchange_id = std::stoi(arg);  // 1: shanghai, 2:shenzhen
+
+    std::cout << "The Exchange ID is : " << exchange_id << '\n';
     // BLOCK the SIG_PIPE SIGNAL
     sigset_t signal_mask;
     sigemptyset(&signal_mask);
@@ -192,26 +207,29 @@ int main(int argc, char* argv[])
         }
     };
     
-        // get num of threads and stock codes
-        // auto queueNum = std::atoi(user_node->FirstChildElement("queueNum")->GetText()); 
-        // auto codes = user_node->FirstChildElement("codes")->GetText();
-        auto queueNum = 1;
-        // auto codes = "600001,600002,600003,600004,600005,600006,600007,600008,600009";
-        std::string filename = "data/pool1.csv";
-        std::vector<Stock> stock_data;
-
-        // Load CSV
-        loadCSV(filename, stock_data);
-        
-        for(auto _ : stock_data)
-        {
-            std::cerr << _.get_stock_id() << " ";
-        }
-        
-        if(!startMyTasksThread(stock_data, queueNum, trade_spi))
-        {
-            std::cerr << "failed to start task thread";
-        }
+    // query all positions, append code
+    if(trade_spi->get_init_positions(exchange_id)!=0){
+        return -1;
+    }
+    // get num of threads and stock codes
+    auto queueNum = 1;
+    std::string filename = "data/pool1.csv";
+    std::vector<Stock> stock_data;
+    for (const auto& pair : trade_spi->avai_postion_map_) {
+        stock_data.push_back({pair.first,0.0,0.0});
+    }
+    // Load CSV
+    loadCSV(filename, stock_data);
+    //
+    for(auto _ : stock_data)
+    {
+        std::cerr << _.get_stock_id() << " ";
+    }
+    std::cout<<endl;
+    if(!startMyTasksThread(stock_data, queueNum, trade_spi))
+    {
+        std::cerr << "failed to start task thread";
+    }
         
     
 
@@ -261,8 +279,17 @@ int main(int argc, char* argv[])
 	// * *************************************************************************/
 #if 1	//7*24环境测试桩，仅支持TCP方式
 	// const char* Level2MD_TCP_FrontAddress = "tcp://210.14.72.17:16900";//上海 
-	const char* Level2MD_TCP_FrontAddress = "tcp://210.14.72.17:6900";//深圳
-	demo_md_api->RegisterFront((char*)Level2MD_TCP_FrontAddress);//上海
+	const char* Level2MD_TCP_FrontAddress = nullptr;
+    std::string frontaddress;
+    if (exchange_id == 1){
+        frontaddress = "tcp://210.14.72.17:16900";
+        Level2MD_TCP_FrontAddress= frontaddress.c_str();//上海 
+    }
+    else if (exchange_id == 2){
+        frontaddress = "tcp://210.14.72.17:6900";
+        Level2MD_TCP_FrontAddress= frontaddress.c_str();//深圳
+    }
+	demo_md_api->RegisterFront((char*)Level2MD_TCP_FrontAddress);
 	printf("Level2MD_TCP_FrontAddress[24H]::%s\n", Level2MD_TCP_FrontAddress);
 #endif
 	demo_md_api->Init();

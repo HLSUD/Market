@@ -1,9 +1,6 @@
 #pragma once
 # include <iostream>
 #include <cstring>
-// #include "BseExanicStruct.h"
-// #include "SseExanicStruct.h"
-// #include "SzseExanicStruct.h"
 #include <memory>
 #include "Lev2Struct_Extension.h"
 #include "stock.h"
@@ -200,7 +197,7 @@ public:
                 // printf("end\n");
                 // good_trade->Buy(100, data->field->TradePrice); //买入
                 // good_trade->Sell(data->field->TradePrice); //卖出
-                good_trade->QueryReq(2); //撤单
+                // good_trade->QueryReq(2); //撤单
             }
                 // std::cout << "推送的是同一只股票: " << std::string(data->SecurityID, 8) << std::endl;
                 // printf("Market cap: %lf, price limit: %lf\n", market_cap,price_limit);
@@ -213,11 +210,11 @@ public:
                 printf("price %lf\n", data->field->TradePrice);
                 if (data->field->TradePrice>1){
                     // good_trade->print_code();
-                    // good_trade->Query(); //查询持仓
+                    good_trade->Query(); //查询持仓
                     // printf("end\n");
                     // good_trade->Buy(100, data->field->TradePrice); //买入
                     // good_trade->Sell(data->field->TradePrice); //卖出
-                    good_trade->QueryReq(2); //撤单
+                    // good_trade->QueryReq(2); //撤单
                 }
                 
                     
