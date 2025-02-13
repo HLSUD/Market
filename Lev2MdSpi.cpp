@@ -293,7 +293,9 @@ Lev2MdSpi::~Lev2MdSpi(void)
     data->type = char(TORALEV2API_V2::sseSnapshotType - (pDepthMarketData->ExchangeID-1)*32);
     std::memcpy((data->SecurityID), pDepthMarketData->SecurityID, sizeof(data->SecurityID));
     
-    data->field = pDepthMarketData;
+    data->field = new CTORATstpLev2MarketDataField;
+    std::memcpy(data->field, pDepthMarketData, sizeof(CTORATstpLev2MarketDataField));
+    // data->field = pDepthMarketData;
     DataFileManager::getInstance().push(data,-1);
     // printf("OnRtnMarketData TimeStamp[%d]  SecurityID[%s] ExchangeID[%c]  PreClosePrice[%f] LowestPrice[%f] HighestPrice[%f] OpenPrice[%f] LastPrice[%f]"
     //     "BidPrice{[%f] [%f] [%f] [%f] [%f] [%f] [%f] [%f] [%f] [%f]}"
@@ -361,7 +363,9 @@ Lev2MdSpi::~Lev2MdSpi(void)
     data->type = char(TORALEV2API_V2::szseTradeType);
     std::memcpy((data->SecurityID), pTransaction->SecurityID, sizeof(data->SecurityID));
     
-    data->field = pTransaction;
+    data->field = new CTORATstpLev2TransactionField;
+    std::memcpy(data->field, pTransaction, sizeof(CTORATstpLev2TransactionField));
+    // data->field = pTransaction;
     DataFileManager::getInstance().push(data,-1);
     // printf("OnRtnTransaction SecurityID[%s] ", pTransaction->SecurityID);
     // printf("ExchangeID[%c] ", pTransaction->ExchangeID);
@@ -393,7 +397,10 @@ Lev2MdSpi::~Lev2MdSpi(void)
 
     std::memcpy((data->SecurityID), pOrderDetail->SecurityID, sizeof(data->SecurityID));
     
-    data->field = pOrderDetail;
+    data->field = new CTORATstpLev2OrderDetailField;
+    std::memcpy(data->field, pOrderDetail, sizeof(CTORATstpLev2OrderDetailField));
+    
+    // data->field = pOrderDetail;
     
     DataFileManager::getInstance().push(data,-1);
     // printf("OnRtnOrderDetail SecurityID[%s] ", pOrderDetail->SecurityID);
@@ -467,7 +474,9 @@ Lev2MdSpi::~Lev2MdSpi(void)
     std::memcpy((data->SecurityID), pTick->SecurityID, sizeof(data->SecurityID));
     
     // data->SecurityID = pTick->SecurityID;
-    data->field = pTick;
+    data->field = new CTORATstpLev2NGTSTickField;
+    std::memcpy(data->field, pTick, sizeof(CTORATstpLev2NGTSTickField));
+    // data->field = pTick;
     
     DataFileManager::getInstance().push(data,-1);
 

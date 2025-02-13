@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
     }
     // get num of threads and stock codes
     auto queueNum = 1;
-    std::string filename = "data/pool1.csv";
+    std::string filename = "data/pool_sz.csv";
     std::vector<Stock> stock_data;
     for (const auto& pair : trade_spi->avai_postion_map_) {
         stock_data.push_back({pair.first,0.0,0.0});

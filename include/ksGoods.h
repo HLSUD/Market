@@ -187,72 +187,28 @@ public:
         // }
     }
     virtual void onSzseTrade(TORALEV2API_V2::SzseTrade* data){
-        // std::cout << "onSzseEntrust" << std::endl; 
-        
-        //std::cerr << code_ << ":" << mystr2(data->SecurityID) << std::endl;
-        if (std::strncmp(lastSecurityID, data->SecurityID, 8) == 0) {
-            if (data->field->TradePrice>1){
-                // good_trade->print_code();
-                // good_trade->Query(); //查询持仓
-                // printf("end\n");
-                // good_trade->Buy(100, data->field->TradePrice); //买入
-                // good_trade->Sell(data->field->TradePrice); //卖出
-                // good_trade->QueryReq(2); //撤单
-            }
-                // std::cout << "推送的是同一只股票: " << std::string(data->SecurityID, 8) << std::endl;
-                // printf("Market cap: %lf, price limit: %lf\n", market_cap,price_limit);
-        } else {
-            if (std::string(lastSecurityID) != "")
-                std::cout << "推送的是不同的股票: " << std::string(data->SecurityID, 8) << std::endl;
-            else
-            {
-                std::cout << "首次推送股票: " << std::string(data->SecurityID, 8) << std::endl;
-                printf("price %lf\n", data->field->TradePrice);
-                if (data->field->TradePrice>1){
-                    // good_trade->print_code();
-                    good_trade->Query(); //查询持仓
-                    // printf("end\n");
-                    // good_trade->Buy(100, data->field->TradePrice); //买入
-                    // good_trade->Sell(data->field->TradePrice); //卖出
-                    // good_trade->QueryReq(2); //撤单
-                }
-                
-                    
-                    
-            }
-            // 更新最近的股票代码
-            std::strncpy(lastSecurityID, data->SecurityID, 8);
-        } 
-        // std::cout << "onSzseTrade" << std::endl;
-        // // 打印各字段内容
-        // std::cout << "MsgType: " << data->MsgType << std::endl;
-        // std::cout << "MDStreamID: " << std::string(data->MDStreamID, 3) << std::endl;
-        // std::cout << "Applseqnum: " << data->Applseqnum << std::endl;
-        // std::cout << "BidApplSeqNum: " << data->BidApplSeqNum << std::endl;
-        // std::cout << "OfferApplSeqNum: " << data->OfferApplSeqNum << std::endl;
-        // std::cout << "SecurityID: " << std::string(data->SecurityID, 8) << std::endl;
-        // std::cout << "ChannelNo: " << data->ChannelNo << std::endl;
-        // std::cout << "ExecType: " << data->ExecType << std::endl;
-        // std::cout << "TradePrice: " << data->TradePrice / 10000.0 << std::endl; // 转换为实际价格
-        // std::cout << "TradeQty: " << data->TradeQty / 100.0 << std::endl;       // 转换为实际数量
-        // std::cout << "TransactTime: " << data->TransactTime << std::endl;
-        // std::cout << "Rsv1: " << std::string(data->Rsv1, 8) << std::endl;
-        // std::cout << "-----------------------------------------" << std::endl;
+        // double trade_price = data->field->TradePrice;
+        // if(code_=="000004"){
+        //     printf("[%s]", code_.c_str());
+        //     printf("TradeTime[%d] ", data->field->TradeTime);
+        //     printf("TradePrice[%.4f] ", trade_price);
+        //     printf("TradeVolume[%lld] \n", data->field->TradeVolume);
+        // }
     }
     virtual void onSzseSnapshot(TORALEV2API_V2::SeSnapshot* data){
-        // std::cout << "onSzseSnapshot" << std::endl;
-        // if (std::strncmp(lastSecurityID, data->SecurityID, 8) == 0) {
-        //         std::cout << "推送的是同一只股票: " << std::string(data->SecurityID, 8) << std::endl;
-        // } else {
-        //     if (std::string(lastSecurityID) != "")
-        //         std::cout << "推送的是不同的股票: " << std::string(data->SecurityID, 8) << std::endl;
-        //     else
-        //     {
-        //         std::cout << "首次推送股票: " << std::string(data->SecurityID, 8) << std::endl;
-        //     }
-        //     // 更新最近的股票代码
-        //     std::strncpy(lastSecurityID, data->SecurityID, 8);
-        // }
+        if(code_!="000004"){
+            printf("KS[%s] DataTimeStamp[%d] BidPrice1[%f] LastPrice[%f] PreClosePrice[%f] LowestPrice[%f] \n", 
+                code_.c_str(), data->field->DataTimeStamp, data->field->BidPrice1, data->field->LastPrice,
+                data->field->PreClosePrice, data->field->LowestPrice);
+            
+            int DataTimeStamp = data->field->DataTimeStamp;  
+            if(DataTimeStamp > 145730000){
+                double sell_price = data->field->BidPrice10;
+                good_trade->Buy(100, 14.00);
+                printf("SecurityID[%s] ", data->SecurityID);
+                printf("Time[%d] ", data->field->DataTimeStamp);
+            } 
+        }
     }
     /*
     virtual void onSzseDepth(SzseDepth* data){ 
